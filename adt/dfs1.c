@@ -8,6 +8,7 @@
 #define MAX_NODES 100
 static int graph_matrix [MAX_NODES][MAX_NODES];
 static int visited [MAX_NODES];
+static int predecessor[MAX_NODES];
 
 /*
  * dfs_walk: implementation of dfs algorithm
@@ -41,34 +42,71 @@ void print_adjacency_matrix(int size)
 	}
 }
 
+int has_cycle(int node_index, int size)
+{
+	int i;
+	visited[node_index] = 1;
+	for (i = 0; i < size; i++) {
+		if (graph_matrix[node_index][i]) {
+			if (predecessor[i] != node_index && visited[i])
+				return 1; //Cycle Exist
+			else {
+				predecessor[i] = node_index;
+				return has_cycle(i, size);
+			}
+		}
+	}
+	return 0;
+}
+
+int detectcycle(int size)
+{
+	int i;
+
+	for (i = 0; i < size; i++) {
+		if (!visited[i] && has_cycle(i, size))
+			return 1;
+	}
+
+	return 0;
+}
+
 /*
  * main: Main entry point of program
  */
 int main()
 {
 	int initial_node;
-	int i, j, total_nodes;
+	int i, j, total_nodes, test_count = 0;
+	int isCycle = 0;
 	clock_t start;
 	double duration;
+	//scan total test cases
+	scanf("%d", &test_count);
+	while (test_count-- > 0) {
+			isCycle = 0;
+			//scan total nodes in the graph
+			scanf("%d", &total_nodes);
+			//initial node to start with
+			scanf("%d", &initial_node);
+			//scan the adjacency matrix of the graph
+			for (i = 0; i < total_nodes; i++) {
+					for (j = 0; j < total_nodes; j++) {
+							scanf("%d", &graph_matrix[i][j]);
+					}
+					// Mark visited of each node as zero
+					visited[i] = 0;
+					predecessor[i] = 0;
+			}
 
-	//scan total nodes in the graph
-	scanf("%d", &total_nodes);
-	//initial node to start with
-	scanf("%d", &initial_node);
-	//scan the adjacency matrix of the graph
-	for (i = 0; i < total_nodes; i++) {
-		for (j = 0; j < total_nodes; j++) {
-			scanf("%d", &graph_matrix[i][j]);
-		}
-		// Mark visited of each node as zero
-		visited[i] = 0;
+			print_adjacency_matrix(total_nodes);
+
+			start = clock();
+			//dfs_walk(initial_node, total_nodes);
+			isCycle = detectcycle(total_nodes);
+			duration = (double) ((clock() - start)/CLOCKS_PER_SEC);
+			printf("\nOperation completed in %f sec.\n", duration);
+			printf("\n Given Graph %s cycle\n", (isCycle ? "Has" : "Have no"));
 	}
-
-	print_adjacency_matrix(total_nodes);
-
-	start = clock();
-	dfs_walk(initial_node, total_nodes);
-	duration = (double) ((clock() - start)/CLOCKS_PER_SEC);
-	printf("\ndfs_walk completed in %f sec.\n", duration);
 	return 0;
 }
