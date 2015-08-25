@@ -42,14 +42,28 @@ void print_adjacency_matrix(int size)
 	}
 }
 
+void print_predecessor(int node_index, int size)
+{
+	int i;
+	printf("\n Predecessor: %d\n", node_index);
+	for (i = 0; i < size; i++) {
+		printf("%d ", predecessor[i]);
+	}
+
+	printf("\n");
+}
+
 int has_cycle(int node_index, int size)
 {
 	int i;
 	visited[node_index] = 1;
 	for (i = 0; i < size; i++) {
 		if (graph_matrix[node_index][i]) {
-			if (predecessor[i] != node_index && visited[i])
+			if (predecessor[i] != node_index && visited[i]) {
+				predecessor[i] = node_index;
+				print_predecessor(node_index, size);
 				return 1; //Cycle Exist
+			}
 			else {
 				predecessor[i] = node_index;
 				return has_cycle(i, size);
@@ -96,7 +110,7 @@ int main()
 					}
 					// Mark visited of each node as zero
 					visited[i] = 0;
-					predecessor[i] = 0;
+					predecessor[i] = -1;
 			}
 
 			print_adjacency_matrix(total_nodes);
