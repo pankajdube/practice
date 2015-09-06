@@ -22,6 +22,7 @@ void print_elements()
 	
 	printf("\n");
 }
+
 void quick_sort(int *data, int left, int right)
 {
 	int i, j, pivot;
