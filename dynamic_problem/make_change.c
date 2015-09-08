@@ -12,7 +12,7 @@ int MakeChange(int *denomination, int amount, int num_denominations)
 {
 	int i, j;
 	unsigned int coins = 0;
-	table[0] = 0;
+	table[0] = 1;
 	
 	for (i = 1; i <= amount; i++) {
 		coins = -1;
