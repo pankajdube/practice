@@ -42,7 +42,7 @@ int is_token(char ch)
 		return OPERAND;
 }
 
-int is_low_priority(char s, char d)
+int compare_precedence(char s, char d)
 {
 	int s_idx, d_idx;
 	int i;
@@ -53,7 +53,7 @@ int is_low_priority(char s, char d)
 			d_idx = i;
 	}
 
-	return s_idx < d_idx ? 1 : 0;
+	return s_idx == d_idx ? 0 : (s_idx > d_idx ? 1 : -1);
 }
 
 void infix_to_postfix(int len)
@@ -62,29 +62,35 @@ void infix_to_postfix(int len)
 	char ch;
 
 	for (i = 0; i < len; i++) {
-		if (is_token(expr[i]) == OPERAND)
-			printf("%c", expr[i]);
-		else if (is_token(expr[i]) == RIGHTPAREN) {
-			while (stack_pointer >= 0 && stack_buffer[stack_pointer] != '(')
-				printf("%c", stack_buffer[stack_pointer--]);
-		} else if ((is_token(expr[i]) == OPERATOR) || (is_token(expr[i]) == LEFTPAREN)) {
-				while (stack_pointer >= 0 &&
-					(is_token(stack_buffer[stack_pointer]) == OPERATOR || is_token(stack_buffer[stack_pointer]) == LEFTPAREN)*/) {
-					if (is_token(stack_buffer[stack_pointer]) == LEFTPAREN) {
-						stack_pointer--; 
-						break;
+			if (is_token(expr[i]) == OPERAND)
+					printf("%c", expr[i]);
+			else if (is_token(expr[i]) == LEFTPAREN)
+					stack_buffer[++stack_pointer] = expr[i];
+			else if (is_token(expr[i]) == RIGHTPAREN) {
+					while (stack_pointer >= 0 && stack_buffer[stack_pointer] != '(')
+							printf("%c", stack_buffer[stack_pointer--]);
+			} else if ((is_token(expr[i]) == OPERATOR)) {
+					if (stack_pointer == -1 || is_token(stack_buffer[stack_pointer] == LEFTPAREN))
+							stack_buffer[++stack_pointer] = expr[i];
+					else if (compare_precedence(expr[i], stack_buffer[stack_pointer]) == 1)
+							stack_buffer[++stack_pointer] = expr[i];
+					else if (compare_precedence(expr[i], stack_buffer[stack_pointer]) == 0) {
+							printf("%c", stack_buffer[stack_pointer--]);
+							stack_buffer[++stack_pointer] = expr[i];
+					} else {
+							while (stack_pointer >= 0 && is_token(stack_buffer[stack_pointer]) != LEFTPAREN &&
+									compare_precedence(expr[i], stack_buffer[stack_pointer]) == -1)
+									printf("%c", stack_buffer[stack_pointer--]);
 					}
-					if (is_low_priority(stack_buffer[stack_pointer], expr[i])) {
-						printf("%c", stack_buffer[stack_pointer--]);
-					} else
-						break;
-				}
-				stack_buffer[++stack_pointer] = expr[i];
-		}
+			}
 	}
 
-	while (stack_pointer >= 0)
-		printf("%c", stack_buffer[stack_pointer--]);
+	while (stack_pointer >= 0) {
+		if (is_token(stack_buffer[stack_pointer]) != LEFTPAREN)
+				printf("%c", stack_buffer[stack_pointer--]);
+		else
+			stack_pointer--;
+	}
 
 	printf("\n");
 }
