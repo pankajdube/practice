@@ -32,8 +32,13 @@ void printDataElements2(char *data, int row, int col)
 	for (i = 0; i < row; i++) {
 		for (j = 0; j < col; j++) {
 			printf("%c", data[i*col+j]);
+			plen++;
+			if (plen >= CHARPERLINE) {
+					printf("\n");
+					plen = 0;
+			}
 		}
-		printf("\n");
+		//printf("\n");
 	}
 #endif
 }
@@ -67,6 +72,12 @@ void decodeBtoD(char* data, int top, int left, int row, int col)
 	char datatype;
 
 	datatype = decodeSubData(data, top, left, row, col);
+	plen++;
+	if (plen > CHARPERLINE) {
+					printf("\n");
+					plen = 0;
+	}
+
 
 	if (datatype == '1' || datatype == '0')
 			printf("%c", datatype);
@@ -100,8 +111,10 @@ void decodeBtoD(char* data, int top, int left, int row, int col)
 
 			if (oddrow && oddcol) {
 					/*Both Row and Col are Odd numbers*/
-					newrow++;
-					newcol++;
+					if (row != 1)
+						newrow++;
+					if (col != 1)
+						newcol++;
 			} else if (oddrow && !oddcol) {
 					/* Rows are odd but Col are even */
 					if (row != 1)	
@@ -143,17 +156,52 @@ int decodeDtoB(int index, char *data, int top, int left, int row, int col)
 	int newrow, newcol;
 	char code;
 	int i, j;
+	int r, c;
+	int sum = 0;
+	r = row + top;
+	c = col + left;
 	code = data[index];
 	/* printf("decodeDtoB: index: %d, top: %d left: %d row: %d col: %d\n", index, top, left, row, col); */
 		if (code == '1') {
-				for (i = 0; i < row; i++)
-						for (j = 0; j < col; j++)
+			for (i = top; i < r; i++) {
+						for (j = left; j < c; j++) {
+							pdata[i*dcol+j] = '1';
+						}
+			}
+#if 0
+				for (i = 0; i < row; i++) {
+						for (j = 0; j < col; j++) {
 							printf("1");
+							plen++;
+							if (plen >= CHARPERLINE) {
+								printf("\n");
+								plen = 0;
+							}
+
+						}
+				}
+#endif
 				return index;
 		} else if (code == '0') {
-				for (i = 0; i < row; i++)
-						for (j = 0; j < col; j++)
+					for (i = top; i < r; i++) {
+									for (j = left; j < c; j++) {
+										pdata[i*dcol+j] = '0';
+									}
+					}
+#if 0
+				for (i = 0; i < row; i++) {
+						for (j = 0; j < col; j++) {
 							printf("0");
+							plen++;
+							if (plen >= CHARPERLINE) {
+								printf("\n");
+								plen = 0;
+							}
+
+
+						}
+				}
+#endif
 				return index;
 		} else if (code == 'D') {
 			if (row > 1 && col == 1) {
@@ -208,52 +256,71 @@ int decodeDtoB(int index, char *data, int top, int left, int row, int col)
 					/* Decode BR */
 					index = decodeDtoB(++index, data, top+newrow, left+newcol, row-newrow, col-newcol);
 			}
+			return index;
 		}
+
+		return index;
 }
 
-void scanDataelements(char type)
+void scanDataelements(char type, int row, int col)
 {
-	int count = 1;
 	char newline;
-
+	int total;
+	if (type == DTYPE) {
 	dlen = 0;
 	scanf("%c", &data[dlen]);
-	while (data[dlen] != '\n') {
-		dlen++;
-		scanf("%c", &data[dlen]);
-		if ((dlen+1) % CHARPERLINE == 0)
-			scanf("%c\n", &newline);
+		while (data[dlen] != '\n') {
+			dlen++;
+			if (dlen % CHARPERLINE == 0)
+					scanf("%c\n", &newline);
+			scanf("%c", &data[dlen]);
+
+		}
 	}
+
+	if (type == BTYPE) {
+		total = row * col;
+		dlen = 0;
+		while (dlen < total){
+			scanf("%c", &data[dlen]);
+			if (data[dlen] != '\n')
+				dlen++;
+		}
+	}
+
 }
 
 int main()
 {
-	int i, j;
 	char type;
-	char *localdata;
 	/* scan the first character */
 	scanf("%c", &type);
-	/* process untill we hit EOFILE character */
+	/* process until we hit EOFILE character */
 	while (type != EOFILE) {
+		plen = 0;
 		/* scan row and col numbers */
 		scanf("%d %d\n", &drow, &dcol);
-		printf("%c: %d: %d\n", type, drow, dcol);
+		//printf("%c: %d: %d\n", type, drow, dcol);
 		/* scan elements of given type of data */
-		if (drow == 0 || dcol == 0)
-			scanDataelements(type);
+		if (drow != 0 && dcol != 0)
+			scanDataelements(type, drow, dcol);
 		if (type == BTYPE) {
 				printf("%c %d %d\n",DTYPE, drow, dcol);
-				//decodeBtoD(data, 0, 0, drow, dcol);
+				if (drow != 0 && dcol != 0)
+					decodeBtoD(data, 0, 0, drow, dcol);
+				else
+					printf("\n");
 				//printDataElements2(data, drow, dcol);
 				printf("\n");
 		} else if (type == DTYPE) {
 				printf("%c %d %d\n",BTYPE, drow, dcol);
-				//decodeDtoB(0, data, 0, 0, drow, dcol);
+				decodeDtoB(0, data, 0, 0, drow, dcol);
+				printDataElements2(pdata, drow, dcol);
 				printf("\n");
 		}
 
 		scanf("\n%c", &type);
-		printf("%c\n", type);
+		//printf("%c\n", type);
 	}
 	return 0;
 }
