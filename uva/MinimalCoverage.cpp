@@ -1,11 +1,10 @@
-#include <stdio.h>
+#include <cstdio>
 #include <algorithm>
 #include <vector>
 
 using namespace std;
 
 #define MAXLINE 100000
-
 
 struct Line
 {
