@@ -38,7 +38,7 @@ void printDataElements2(char *data, int row, int col)
 					plen = 0;
 			}
 		}
-		//printf("\n");
+		/*printf("\n");*/
 	}
 #endif
 }
@@ -75,7 +75,7 @@ void decodeBtoD(char* data, int top, int left, int row, int col)
 	plen++;
 	if (plen > CHARPERLINE) {
 					printf("\n");
-					plen = 0;
+					plen = 1;
 	}
 
 
@@ -245,8 +245,13 @@ void scanDataelements(char type, int row, int col)
 	scanf("%c", &data[dlen]);
 		while (data[dlen] != '\n') {
 			dlen++;
-			if (dlen % CHARPERLINE == 0)
-					scanf("%c\n", &newline);
+			if (dlen % CHARPERLINE == 0) {
+					scanf("%c", &newline);
+					if (newline != '\n') {
+						data[dlen] = newline;
+						dlen++;
+					}
+			}
 			scanf("%c", &data[dlen]);
 
 		}
@@ -274,27 +279,28 @@ int main()
 		plen = 0;
 		/* scan row and col numbers */
 		scanf("%d %d\n", &drow, &dcol);
-		//printf("%c: %d: %d\n", type, drow, dcol);
+		/*printf("%c: %d: %d\n", type, drow, dcol);*/
 		/* scan elements of given type of data */
 		if (drow != 0 && dcol != 0)
 			scanDataelements(type, drow, dcol);
 		if (type == BTYPE) {
-				printf("%c %d %d\n",DTYPE, drow, dcol);
+				printf("%c%4d%4d\n",DTYPE, drow, dcol);
 				if (drow != 0 && dcol != 0)
 					decodeBtoD(data, 0, 0, drow, dcol);
-				else
-					printf("\n");
-				//printDataElements2(data, drow, dcol);
+				/*else
+					printf("\n");*/
+				/*printDataElements2(data, drow, dcol);*/
 				printf("\n");
 		} else if (type == DTYPE) {
-				printf("%c %d %d\n",BTYPE, drow, dcol);
+				printf("%c%4d%4d\n",BTYPE, drow, dcol);
 				decodeDtoB(0, data, 0, 0, drow, dcol);
 				printDataElements2(pdata, drow, dcol);
 				printf("\n");
 		}
 
 		scanf("\n%c", &type);
-		//printf("%c\n", type);
+		/*printf("%c\n", type);*/
 	}
+	printf("\n");
 	return 0;
 }
