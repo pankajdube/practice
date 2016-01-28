@@ -4,47 +4,41 @@
 using namespace std;
 
 #define MAXSIZE 100000
-int soldiers[MAXSIZE];
+int left[MAXSIZE];
+int right[MAXSIZE]; 
 
 int main()
 {
 	int i, S, B, L, R;
-	int idx;
 	while (scanf("%d %d\n", &S, &B) && (S != 0 || B != 0)) {
-		memset(soldiers, 1, sizeof soldiers);
+		memset(left, -1, sizeof left);
+		memset(right, -1, sizeof right);
+		/* init left and right buddies */
+		for (i = 1; i <= S; i++) {
+			if (i != 1)
+				left[i] = i - 1;
+			if (i != S)
+				right[i] = i + 1;
+		}
+
 		for (i = 0; i < B; i++) {
 			/* scan the killed soldier boundries */
 			scanf("%d %d\n", &L, &R);
-			/* mark killed soldiers */
-			for (int j = L; j <=R; j++)
-				soldiers[j] = 0;
-			idx = -1;
-			/* get index of first surviving soldier to the left of L */
-			for (int k = L - 1; k >= 1; k--) {
-				if (soldiers[k]) {
-					idx = k;
-					break;
-				}
-			}
-			/* print the first surviving soldier */
-			if (idx == -1)
+			/* print the first left surviving soldier */
+			if (left[L] == -1)
 				printf("* ");
 			else	
-				printf("%d ", idx);
-			idx = -1;
-			/* get index of first surviving soldier to the right of R */
-			for (int k = R + 1; k <=S; k++) {
-				if (soldiers[k]) {
-					idx = k;
-					break;
-				}
-			}
-			/* print the first surviving soldier */
-			if (idx == -1)
+				printf("%d ", left[L]);
+
+			/* print the first right surviving soldier */
+			if (right[R] == -1)
 				printf("*\n");
 			else	
-				printf("%d\n", idx);
-
+				printf("%d\n", right[R]);
+		
+			/* update left and right buddies of remaining soldier */
+			right[left[L]] = right[R];
+			left[right[R]] = left[L];
 		}
 		/* at the end print '-' */
 		printf("-\n");
