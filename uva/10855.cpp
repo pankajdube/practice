@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <cstring>
-#include <malloc>
+#include <cstdlib>
 
 using namespace std;
 
@@ -11,8 +11,8 @@ int match_pattern(char **data, char **pattern)
 	int match;
 	int count = 0;
 	int i, j, k, l;
-	for (i = 0; i < N-M; i++) {
-		for (j = 0; j < N-M; j++) {
+	for (i = 0; i < N-M+1; i++) {
+		for (j = 0; j < N-M+1; j++) {
 			match = 1;
 			for (k = 0; k < M; k++) {
 				for (l = 0; l < M; l++) {
@@ -32,36 +32,16 @@ int match_pattern(char **data, char **pattern)
 	return count;
 }
 
-void rotate_pattern(char **pattern)
-{
-
-}
-#if 0
-void rotate_pattern(char **pattern)
+void rotate_pattern(char **source, char **dest)
 {
 	int i, j;
-	int row = 0, col = 0;
-	int r = M, c = M;
-	int prev = pattern[row+1][col];
-	int temp;
-	while (row < r && col < c) {
-		if ((row+1) == r || (col+1) == c)
-			break;
-		/* shift top row elements */
-		for (i = col; i < c; i++) {
-			temp = pattern[row][i];
-			pattern[row][i] = prev;
-			prev = temp;
+	for (i = 0; i < M; i++) {
+		for (j = 0; j < M; j++) {
+			dest[i][j] = source[M -1 -j][i];
 		}
-		/* shift right most column elements */
-		for (i = row; i < r; i++) {
-			temp = pattern[i][c-1]; 
-		}
-	
 	}
-
 }
-#endif
+
 int main()
 {
 
@@ -70,41 +50,60 @@ int main()
 	while (scanf("%d %d\n", &N, &M) && (N != 0 || M != 0)) {
 		char **data = (char **) malloc(N * sizeof (char *));
 		for (i = 0; i < N; i++)
-			data[i] = (char *) malloc( N * sizeof char);
-		char **pattern = (char **) malloc(M * sizeof (char *));
-		for (i = 0; i < M; i++)
-			pattern[i] = (char *) malloc( M * sizeof char);
+			data[i] = (char *) malloc(N * sizeof (char));
 
-		memset(data, 0, sizeof data);
-		memset(pattern, 0, sizeof pattern);
-		
+		char **pattern = (char **) malloc(M * sizeof (char *));
+		char **rot_pattern = (char **) malloc(M * sizeof (char *));
+		for (i = 0; i < M; i++) {
+			pattern[i] = (char *) malloc(M * sizeof (char));
+			rot_pattern[i] = (char *) malloc(M * sizeof (char));
+		}
+
 		for (i = 0; i < N; i++) {
 			for (j = 0; j < N; j++) {
 				if (j != N -1)
-					scanf("%c", data[i][j]);
+					scanf("%c", &data[i][j]);
 				else
-					scanf("%c\n", data[i][j]);
+					scanf("%c\n", &data[i][j]);
 			}
 		}
-	
+
 		for (i = 0; i < M; i++) {
 			for (j = 0; j < M; j++) {
-				if (j != M -1)
-					scanf("%c", pattern[i][j]);
+				if (j != M -1) 
+					scanf("%c", &pattern[i][j]);
 				else
-					scanf("%c\n", pattern[i][j]);
+					scanf("%c\n", &pattern[i][j]);
 			}
 		}
-		
-		for (i = 0; i < 3; i++) {
-			/* rotate pattern by i * 90 */
-			rotate_pattern(pattern, i);
+		for (int k = 0; k < 4; k++) {
+			if ( k != 0) {
+				rotate_pattern(pattern, rot_pattern);
+				for (i = 0; i < M; i++) {
+					for (j = 0; j < M; j++) {
+						pattern[i][j] = rot_pattern[i][j];
+					}
+				}
+			}
 			int match = match_pattern(data, pattern);
-			if (i < 2)
+			if (k < 3)
 				printf("%d ", match);
 			else
 				printf("%d\n", match);
 		}
+
+		for (i = 0; i < M; i++) {
+			free(pattern[i]);
+		}
+		free(pattern);
+		for (i = 0; i < M; i++) {
+			free(rot_pattern[i]);
+		}
+		free(rot_pattern);
+		for (i = 0; i < N; i++) {
+			free(data[i]);
+		}
+		free(data);
 	}
 	return 0;
 }
