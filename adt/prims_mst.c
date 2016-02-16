@@ -71,7 +71,6 @@ int main()
 			printf("G->nodes: %d\n", G->nodes);
 			scanf("%d", &start_node);
 			printf("start_node: %d\n", start_node);
-			G->adj = malloc(sizeof(G->nodes * G->nodes * sizeof(int)));
 			G->adj = (int **) malloc(G->nodes * sizeof(int *));
 			for (i = 0; i < G->nodes; i++)
 					G->adj[i] = (int *)malloc(G->nodes * sizeof(int));
