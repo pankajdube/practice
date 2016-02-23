@@ -63,7 +63,11 @@ void do_pile_onto(struct stack *blocks, int a, int b)
 
 void do_pile_over(struct stack *blocks, int a, int b)
 {
-	int i;
+	int i, s, d;
+	if (blocks[a].data[0] == a) {
+		s = a;
+	} else {
+	}
 	/*move all blocks stacked over a onto b */
 	for (i = 0; i <= blocks[a].top; i++) {
 		blocks[b].data[++blocks[b].top] = blocks[a].data[i];
