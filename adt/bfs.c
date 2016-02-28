@@ -49,7 +49,7 @@ void EnQueue(struct Queue *Q, int data) {
 	if (Q->front == NULL)
 		Q->front = Q->rear;
 
-//	printf("Enqueue: Q->front: %p Q->rear: %p: \n", Q->front, Q->rear);
+	printf("Enqueue: Q->front: %p Q->rear: %p: \n", Q->front, Q->rear);
 }
 
 int DeQueue(struct Queue *Q) {
@@ -67,7 +67,7 @@ int DeQueue(struct Queue *Q) {
 	if (!Q->front)
 		Q->rear = Q->front;
 
-//	printf("Dequeue: Q->front: %p Q->rear: %p: \n", Q->front, Q->rear);
+	printf("Dequeue: Q->front: %p Q->rear: %p: \n", Q->front, Q->rear);
 	return data;
 }
 
@@ -142,7 +142,7 @@ void BFS(struct Graph *G, int u)
 	while(!IsEmptyQueue(Q)) {
 		u = DeQueue(Q);
 		if (!G->visited[u])
-				printf("%d ", u);
+			printf("%d ", u);
 		G->visited[u] = 1;
 		for (v = 0; v < G->nodes; v++) {
 			if(!G->visited[v] && G->adj[u][v])
@@ -177,7 +177,6 @@ int main()
 			printf("G->nodes: %d\n", G->nodes);
 			scanf("%d", &start_node);
 			printf("start_node: %d\n", start_node);
-			G->adj = malloc(sizeof(G->nodes * G->nodes * sizeof(int)));
 			G->adj = (int **) malloc(G->nodes * sizeof(int *));
 			for (i = 0; i < G->nodes; i++)
 					G->adj[i] = (int *)malloc(G->nodes * sizeof(int));
