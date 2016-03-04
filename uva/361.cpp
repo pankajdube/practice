@@ -1,7 +1,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
+#define DEBUG_LOCAL
+#undef DEBUG_LOCAL
 #define MAXN 201
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) <= (b) ? (a) : (b))
@@ -34,11 +35,10 @@ bool is_inbetween(int x1, int y1, int x2, int y2, int x, int y)
 	minX = (x1 + x2) - maxX;
 	maxY = max(y1, y2);
 	minY = (y1 + y2) - maxY;
-	if (x <= maxX && x >= minX) {
-		if (y <= maxY && y >= minY)
-			return true;
-	}
-	return false;
+	if (x > maxX || x < minX || y > maxY || y < minY)
+		return false;
+
+	return true;
 }
 
 bool is_inside(int x1, int y1, int x2, int y2, int x3, int y3, int x, int y)
@@ -47,43 +47,67 @@ bool is_inside(int x1, int y1, int x2, int y2, int x3, int y3, int x, int y)
 	
 	A = area(x1, y1, x2, y2, x3, y3);
 	if (A == 0) {
+		if (x1 == x2 && y1 == y2 && x2 == x3 && y2 == y3) {
+			if(x1 == x && y1 == y)
+				return true;
+			else
+				return false;
+		}
+		
 		if ((x1 == x && y1 == y) || (x2 == x && y2 == y) || (x3 == x && y3 == y))
 			return true;
 	}
-	printf("A: %d Triangle(%d, %d, %d, %d, %d, %d)\n", A, x1, y1, x2, y2, x3, y3);	
+#ifdef DEBUG_LOCAL
+	printf("A: %d Triangle(%d, %d, %d, %d, %d, %d)\n", A, x1, y1, x2, y2, x3, y3);
+#endif	
 	A1 = area(x, y, x2, y2, x3, y3);
 	if (A1 == 0 && is_inbetween(x2, y2, x3, y3, x, y))
 		return true;
-	printf("A1: %d Triangle(%d, %d, %d, %d, %d, %d)\n", A1, x, y, x2, y2, x3, y3);	
+#ifdef DEBUG_LOCAL
+	printf("A1: %d Triangle(%d, %d, %d, %d, %d, %d)\n", A1, x, y, x2, y2, x3, y3);
+#endif	
 	A2 = area(x1, y1, x, y, x3, y3);
 	if (A2 == 0 && is_inbetween(x1, y1, x3, y3, x, y))
 		return true;
-	printf("A2: %d Triangle(%d, %d, %d, %d, %d, %d)\n", A2, x1, y1, x, y, x3, y3);	
+#ifdef DEBUG_LOCAL
+	printf("A2: %d Triangle(%d, %d, %d, %d, %d, %d)\n", A2, x1, y1, x, y, x3, y3);
+#endif	
 	A3 = area(x1, y1, x2, y2, x, y); 
 	if (A3 == 0 && is_inbetween(x1, y1, x2, y2, x, y))
 		return true;
-	printf("A3: Triangle(%d: %d, %d, %d, %d, %d, %d)\n", A3, x1, y1, x2, y2, x, y);	
-	if (A == 0 && (A1 == 0 || A2 == 0 || A3 == 0))
-		return true; 
+#ifdef DEBUG_LOCAL
+	printf("A3: Triangle(%d: %d, %d, %d, %d, %d, %d)\n", A3, x1, y1, x2, y2, x, y);
+#endif	
+//	if (A == 0 && (A1 == 0 || A2 == 0 || A3 == 0))
+	if ((A + A1 + A2 + A3) == 0)
+		return false;
 	return (A == A1 + A2 + A3);
 }
 
 bool is_citizen_safe(int x, int y)
 {
-	int i;
+	int i, j, k;
 	for (i = 0; i < C-2; i++) {
-		if (is_inside(cops[i].x, cops[i].y, cops[i+1].x, cops[i+1].y, cops[i+2].x, cops[i+2].y, x, y))
-			return true;
+		for (j = i+1; j < C-1; j++) {
+			for (k = j+1; k < C; k++) {
+				if (is_inside(cops[i].x, cops[i].y, cops[j].x, cops[j].y, cops[k].x, cops[k].y, x, y))
+					return true;
+			}
+		}
 	}
 	return false;
 }
 
 bool is_citizen_robbed(int x, int y)
 {
-	int i;
-	for (i = 0; i < R-2; i++) {
-		if (is_inside(robbers[i].x, robbers[i].y, robbers[i+1].x, robbers[i+1].y, robbers[i+2].x, robbers[i+2].y, x, y))
-			return true;
+	int i, j, k;
+	for (i = 0; i < C-2; i++) {
+		for (j = i+1; j < C-1; j++) {
+			for (k = j+1; k < C; k++) {
+				if (is_inside(robbers[i].x, robbers[i].y, robbers[j].x, robbers[j].y, robbers[k].x, robbers[k].y, x, y))
+					return true;
+			}
+		}
 	}
 	return false;
 }
@@ -101,6 +125,8 @@ int main()
 		/* scan coordinates of robbers */
 		for (i = 0; i < R; i++)
 			scanf("%d %d\n", &robbers[i].x, &robbers[i].y);
+		/* print status of each citizen */
+		printf("Data set %d:\n", id++);
 		/* scan coordinates of citizens */
 		for (i = 0; i < O; i++) {
 			scanf("%d %d\n", &citizens[i].x, &citizens[i].y);
@@ -112,12 +138,7 @@ int main()
 				else
 					citizen_state[i] = state[0];
 			}
-									
-		}
-		/* print status of each citizen */
-		printf("Data set %d:\n", id++);
-		for (i = 0; i < O; i++) {
-			printf("\t Citizen at (%d,%d) is %s.\n", citizens[i].x, citizens[i].y, citizen_state[i]);
+			printf("     Citizen at (%d,%d) is %s.\n", citizens[i].x, citizens[i].y, citizen_state[i]);
 		}
 		printf("\n");
 	}	
